@@ -14,15 +14,4 @@ class MerchantSerializer
       name: merchant.name
     }
   end
-
-  def self.format_merchant_items(merchant)
-    merchant.items.map do |item|
-      {
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        unit_price: item.unit_price
-      }
-    end
-  end
 end
