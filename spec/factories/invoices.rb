@@ -1,7 +1,17 @@
 FactoryBot.define do
   factory :invoice do
-    status { Faker::Number.between(from: 0, to: 2) }
-    customer_id { create(:customer).id }
-    # merchant_id { create(:merchant).id }
+    status { "shipped" }
+    association :merchant, :customer
+    
+    trait :packaged do
+      status { "packaged" }
+    end
+
+    trait :returned do
+      status { "returned" }
+    end
+
+   factory :packaged_invoice, traits: [:packaged]
+   factory :returned_invoice, traits: [:returned]
   end
 end
