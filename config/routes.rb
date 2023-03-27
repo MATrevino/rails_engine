@@ -8,7 +8,9 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :customers, only: [:index]
       resources :invoices, only: [:index]
-      resources :merchants, only: [:index, :show]
+      resources :merchants, only: [:index, :show] do
+        resources :items, only: [:index]
+      end
     end
   end
 end
