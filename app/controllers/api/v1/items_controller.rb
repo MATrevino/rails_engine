@@ -4,44 +4,49 @@ class Api::V1::ItemsController < ApplicationController
     render json: ItemSerializer.new(Item.all)
   end
 
-  def show
-    # item = Item.find(params[:id])
-    # render json: ItemSerializer.format_item_show(item)
-    render json: ItemSerializer.new(Item.find(params[:id]))
-  end
   # def show
-  #   begin
-  #    render json: ItemSerializer.new(Item.find(params[:id]))
-  #   rescue ActiveRecord::RecordNotFound => e
-  #    render json: ErrorIdSerializer.new(e).serialized_json, status: 404
-  #   end
-  #  end
-
-  def create
-    item = Item.create(item_params)
-    # render json: ItemSerializer.format_item_create(Item.last)
-    render json: ItemSerializer.new(item), status: 201
+  #   # item = Item.find(params[:id])
+  #   # render json: ItemSerializer.format_item_show(item)
+  #   render json: ItemSerializer.new(Item.find(params[:id]))
+  # end
+  def show
+    begin
+     render json: ItemSerializer.new(Item.find(params[:id]))
+    rescue ActiveRecord::RecordNotFound => e
+     render json: ErrorSerializer.new(e).serialized_json, status: 404
+    end
   end
+
   # def create
-  #   item = Item.new(item_params)
-  #   if item.save
-  #    render json: ItemSerializer.new(item), status: 201
-  #   else
-  #    render json: ItemErrorSerializer.new(item).serialized_json, status: 404
-  #   end
-  #  end
+  #   item = Item.create(item_params)
+  #   # render json: ItemSerializer.format_item_create(Item.last)
+  #   render json: ItemSerializer.new(item), status: 201
+  # end
+  def create
+    item = Item.new(item_params)
+    if item.save
+     render json: ItemSerializer.new(item), status: 201
+    else
+     render json: ErrorSerializer.new(item).serialized_json, status: 404
+    end
+  end
 
   def update
     item = Item.find(params[:id])
     item.update(item_params)
-    render json: ItemSerializer.new(item)
+    
+    if item.save
+      render json: ItemSerializer.new(item)
+    else
+    #  render json: ErrorSerializer.new(item).serialized_json, status: 404
+      render json: { errors: "Invalid Update" }, status: 400
+    end
   end
 
   def destroy
     item = Item.find(params[:id])
     item.destroy
-    render json: ItemSerializer.format_item_create(item)
- 
+    render json: ItemSerializer.new(item)
   end
 
   private

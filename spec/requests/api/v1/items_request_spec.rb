@@ -55,6 +55,24 @@ describe "Items API" do
       expect(created_item[:merchant_id]).to eq(item_params[:merchant_id])
     end
 
+    # it "can't create a new item with missing params" do
+    #   id = create(:merchant).id
+
+    #   item_params = ({
+    #                 name: "Rubber Duck",
+    #                 description: "A rubber duck",
+    #                 unit_price: ,
+    #                 merchant_id: id
+    #                })
+
+    #   headers = {"CONTENT_TYPE" => "application/json"}
+    #   Item.new(item_params)
+
+    #   expect(attempted_item).to_not be_valid
+    #   expect(attempted_item.errors.full_messages).to eq(["Unit price can't be blank"])
+
+    # end
+
     it 'can update an existing item' do
       id = create(:item).id 
       previous_item = Item.last.name
@@ -67,6 +85,25 @@ describe "Items API" do
       expect(response).to be_successful
       expect(item[:name]).to_not eq(previous_item)
       expect(item[:name]).to eq("Rubber Duck")
+      expect(item[:description]).to eq(Item.last.description)
+      expect(item[:unit_price]).to eq(Item.last.unit_price)
+    end
+
+    it 'cannot update an item with missing params' do
+      id = create(:item).id 
+      previous_item = Item.last.name
+      item_params = { name: "" }
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
+      item = Item.find_by(id: id)
+
+      expect(response).to_not be_successful
+      expect(response).to have_http_status(400)
+      error = JSON.parse(response.body, symbolize_names: true)
+      expect(error).to eq({errors: "Invalid Update"})
+      # expect(response.body).to eq("Invalid Update")
+  
     end
 
     it 'can destroy an item' do
