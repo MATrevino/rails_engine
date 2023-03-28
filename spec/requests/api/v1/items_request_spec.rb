@@ -8,23 +8,12 @@ describe "Items API" do
 
     expect(response).to be_successful
 
-    items = JSON.parse(response.body, symbolize_names: true)
+    parsed_items = JSON.parse(response.body, symbolize_names: true)
 
-    expect(items.count).to eq(3)
-
-    items.each do |item|
-      expect(item).to have_key(:id)
-      expect(item[:id]).to be_an(Integer)
-
-      expect(item).to have_key(:name)
-      expect(item[:name]).to be_a(String)
-
-      expect(item).to have_key(:description)
-      expect(item[:description]).to be_a(String)
-
-      expect(item).to have_key(:unit_price)
-      expect(item[:unit_price]).to be_a(Float)
-    end
+    expect(parsed_items[:data]).to be_an(Array)
+    expect(parsed_items[:data].size).to eq(3)
+    expect(parsed_items[:data][0].keys).to eq([:id, :type, :attributes])
+    expect(parsed_items[:data][0][:attributes][:name]).to eq(Item.first.name)
   end
 
     it 'can get one item by its id' do
@@ -32,21 +21,16 @@ describe "Items API" do
 
       get "/api/v1/items/#{id}"
 
-      item = JSON.parse(response.body, symbolize_names: true)
+      parsed_item = JSON.parse(response.body, symbolize_names: true)
 
       expect(response).to be_successful
 
-      expect(item).to have_key(:id)
-      expect(item[:id]).to be_an(Integer)
-
-      expect(item).to have_key(:name)
-      expect(item[:name]).to be_a(String)
-
-      expect(item).to have_key(:description)
-      expect(item[:description]).to be_a(String)
-
-      expect(item).to have_key(:unit_price)
-      expect(item[:unit_price]).to be_a(Float)
+      expect(parsed_item[:data]).to be_a(Hash)
+      expect(parsed_item[:data].keys).to eq([:id, :type, :attributes])
+      expect(parsed_item[:data][:id]).to eq(id.to_s)
+      expect(parsed_item[:data][:type]).to eq("item")
+      expect(parsed_item[:data][:attributes]).to eq({name: Item.first.name, description: Item.first.description, unit_price: Item.first.unit_price, merchant_id: Item.first.merchant_id})
+      expect(parsed_item[:data][:attributes].size).to eq(4)
     end
 
     it 'can create a new item' do
@@ -63,11 +47,12 @@ describe "Items API" do
 
       post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
       created_item = Item.last
-
+      
       expect(response).to be_successful
-      expect(created_item.name).to eq(item_params[:name])
-      expect(created_item.description).to eq(item_params[:description])
-      expect(created_item.unit_price).to eq(item_params[:unit_price])
+      expect(created_item[:name]).to eq(item_params[:name])
+      expect(created_item[:description]).to eq(item_params[:description])
+      expect(created_item[:unit_price]).to eq(item_params[:unit_price])
+      expect(created_item[:merchant_id]).to eq(item_params[:merchant_id])
     end
 
     it 'can update an existing item' do
@@ -80,8 +65,8 @@ describe "Items API" do
       item = Item.find_by(id: id)
 
       expect(response).to be_successful
-      expect(item.name).to_not eq(previous_item)
-      expect(item.name).to eq("Rubber Duck")
+      expect(item[:name]).to_not eq(previous_item)
+      expect(item[:name]).to eq("Rubber Duck")
     end
 
     it 'can destroy an item' do

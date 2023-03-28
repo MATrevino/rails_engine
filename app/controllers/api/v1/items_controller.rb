@@ -1,7 +1,6 @@
 class Api::V1::ItemsController < ApplicationController
   def index
-    # items = Item.all
-    # render json: ItemSerializer.format_items(items)
+
     render json: ItemSerializer.new(Item.all)
   end
 
@@ -10,17 +9,31 @@ class Api::V1::ItemsController < ApplicationController
     # render json: ItemSerializer.format_item_show(item)
     render json: ItemSerializer.new(Item.find(params[:id]))
   end
+  # def show
+  #   begin
+  #    render json: ItemSerializer.new(Item.find(params[:id]))
+  #   rescue ActiveRecord::RecordNotFound => e
+  #    render json: ErrorIdSerializer.new(e).serialized_json, status: 404
+  #   end
+  #  end
 
   def create
-    Item.create(item_params)
+    item = Item.create(item_params)
     # render json: ItemSerializer.format_item_create(Item.last)
-    render json: ItemSerializer.new(Item.last)
+    render json: ItemSerializer.new(item), status: 201
   end
+  # def create
+  #   item = Item.new(item_params)
+  #   if item.save
+  #    render json: ItemSerializer.new(item), status: 201
+  #   else
+  #    render json: ItemErrorSerializer.new(item).serialized_json, status: 404
+  #   end
+  #  end
 
   def update
     item = Item.find(params[:id])
     item.update(item_params)
-    # render json: ItemSerializer.format_item_create(item)
     render json: ItemSerializer.new(item)
   end
 

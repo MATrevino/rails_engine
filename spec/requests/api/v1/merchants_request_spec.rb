@@ -35,7 +35,7 @@ describe 'Merchants API' do
     it "can get all items for a given merchant id" do
       id = create(:merchant).id
       create_list(:item, 3, merchant_id: id)
-      other_item = create_list(:item, 1)
+      # other_item = create_list(:item, 1)
 
       get "/api/v1/merchants/#{id}/items"
 
@@ -52,6 +52,5 @@ describe 'Merchants API' do
       expect(parsed_items[:data][0][:attributes]).to eq({name: Item.first.name, description: Item.first.description, unit_price: Item.first.unit_price, merchant_id: Item.first.merchant_id})
 
       expect(parsed_items[:data][0][:attributes].size).to eq(4)
-
     end
 end
