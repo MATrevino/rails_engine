@@ -21,6 +21,12 @@ class Api::V1::ItemsController < ApplicationController
     render json: ItemSerializer.format_item_create(item)
   end
 
+  def destroy
+    item = Item.find(params[:id])
+    item.destroy
+    render json: ItemSerializer.format_item_create(item)
+  end
+
   private
   
   def item_params
