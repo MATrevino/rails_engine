@@ -70,7 +70,7 @@ describe "Items API" do
       expect(created_item.unit_price).to eq(item_params[:unit_price])
     end
 
-    xit 'can update an existing item' do
+    it 'can update an existing item' do
       id = create(:item).id 
       previous_item = Item.last.name
       item_params = { name: "Rubber Duck" }
