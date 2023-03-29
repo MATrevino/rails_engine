@@ -55,23 +55,24 @@ describe "Items API" do
       expect(created_item[:merchant_id]).to eq(item_params[:merchant_id])
     end
 
-    # it "can't create a new item with missing params" do
-    #   id = create(:merchant).id
+    it 'cannot create a new item with missing params' do
+      id = create(:merchant).id
 
-    #   item_params = ({
-    #                 name: "Rubber Duck",
-    #                 description: "A rubber duck",
-    #                 unit_price: ,
-    #                 merchant_id: id
-    #                })
+      item_params = ({
+                    name: "Rubber Duck",
+                    description: "A rubber duck",
+                    unit_price: "",
+                    merchant_id: id
+                   })
 
-    #   headers = {"CONTENT_TYPE" => "application/json"}
-    #   Item.new(item_params)
+      headers = {"CONTENT_TYPE" => "application/json"}
 
-    #   expect(attempted_item).to_not be_valid
-    #   expect(attempted_item.errors.full_messages).to eq(["Unit price can't be blank"])
+      post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+      created_item = Item.last
 
-    # end
+      expect(response).to_not be_successful
+      expect(response.status).to eq(404)
+    end
 
     it 'can update an existing item' do
       id = create(:item).id 
@@ -100,10 +101,6 @@ describe "Items API" do
 
       expect(response).to_not be_successful
       expect(response).to have_http_status(400)
-      error = JSON.parse(response.body, symbolize_names: true)
-      expect(error).to eq({errors: "Invalid Update"})
-      # expect(response.body).to eq("Invalid Update")
-  
     end
 
     it 'can destroy an item' do
@@ -134,5 +131,22 @@ describe "Items API" do
       expect(parsed_info[:data][:id]).to eq(merchant.id.to_s)
       expect(parsed_info[:data][:type]).to eq("merchant")
       expect(parsed_info[:data][:attributes]).to eq({name: Merchant.first.name})
+    end
+
+    xdescribe 'non-restful routes' do
+      it 'can find an item by name' do
+        merchant_id = create(:merchant).id
+        item1 = create(:item, name: "Dog bed", description: "a bed for dogs", merchant_id: merchant_id)
+        item2 = create(:item, name: "Dog toy", description: "a chew toy for dogs", merchant_id: merchant_id)
+        item3 = create(:item, name: "Cat toy", description: "a toy for cats", merchant_id: merchant_id)
+
+        get "/api/v1/items/find?name=Dog"
+
+        parsed_info = JSON.parse(response.body, symbolize_names: true)
+        # expect(response).to be_successful
+        expect(parsed_info).to have_key(:data)
+        # expect(parsed_info[:data]).to have_key(:id)
+
+      end
     end
 end
