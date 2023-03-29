@@ -53,4 +53,18 @@ describe 'Merchants API' do
 
       expect(parsed_items[:data][0][:attributes].size).to eq(4)
     end
+
+    describe 'non-restful routes: search for all merchants query' do
+      it 'can find all merchants that match a search query' do
+        merchant1 = create(:merchant, name: "Bob's Burgers")
+        merchant2 = create(:merchant, name: "Burger King")
+        merchant2 = create(:merchant, name: "Patagonia")
+
+        get "/api/v1/merchants/find_all?name=burger"
+
+        parsed_info = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response).to be_successful
+      end
+    end
 end
