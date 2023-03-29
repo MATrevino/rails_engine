@@ -65,6 +65,20 @@ describe 'Merchants API' do
         parsed_info = JSON.parse(response.body, symbolize_names: true)
 
         expect(response).to be_successful
+        expect(parsed_info[:data]).to be_an(Array)
+        expect(parsed_info[:data].size).to eq(2)
+        expect(parsed_info[:data][0].keys).to eq([:id, :type, :attributes])
+      end
+
+      it 'will return an error if no merchant matches the search query' do
+        merchant1 = create(:merchant, name: "Bob's Burgers")
+
+        get "/api/v1/merchants/find_all?name=flower"
+
+        parsed_info = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response).to be_successful
+        expect(parsed_info[:errors]).to eq("Couldn't find Merchant")
       end
     end
 end
