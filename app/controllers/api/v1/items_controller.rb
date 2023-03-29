@@ -37,6 +37,7 @@ class Api::V1::ItemsController < ApplicationController
     item = Item.find(params[:id])
     item.destroy
     render json: ItemSerializer.new(item)
+    #get ride of the ItemSerializer, not needed
   end
 
   def search

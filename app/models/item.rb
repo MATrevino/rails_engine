@@ -6,4 +6,10 @@ class Item < ApplicationRecord
 
   validates_presence_of :name, :description, :unit_price, :merchant_id
 
+
+  def self.search_by_name(name_search)
+    where("name ILIKE ?", "%#{name_search}%")
+    .order(:name)
+    .first
+  end
 end

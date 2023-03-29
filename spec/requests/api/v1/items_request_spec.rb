@@ -133,20 +133,35 @@ describe "Items API" do
       expect(parsed_info[:data][:attributes]).to eq({name: Merchant.first.name})
     end
 
-    xdescribe 'non-restful routes' do
+    describe 'non-restful routes' do
       it 'can find an item by name' do
         merchant_id = create(:merchant).id
-        item1 = create(:item, name: "Dog bed", description: "a bed for dogs", merchant_id: merchant_id)
-        item2 = create(:item, name: "Dog toy", description: "a chew toy for dogs", merchant_id: merchant_id)
-        item3 = create(:item, name: "Cat toy", description: "a toy for cats", merchant_id: merchant_id)
+        item1 = create(:item, name: "Dog toy", merchant_id: merchant_id)
+        item2 = create(:item, name: "Dog bed", merchant_id: merchant_id)
+        item3 = create(:item, name: "Cat toy", merchant_id: merchant_id)
 
-        get "/api/v1/items/find?name=Dog"
+        get "/api/v1/items/find?name=dog"
 
         parsed_info = JSON.parse(response.body, symbolize_names: true)
-        # expect(response).to be_successful
-        expect(parsed_info).to have_key(:data)
-        # expect(parsed_info[:data]).to have_key(:id)
+        
+        expect(response).to be_successful
+        expect(parsed_info[:data]).to be_a(Hash)
+        expect(parsed_info.size).to eq(1)
+        expect(parsed_info[:data].keys).to eq([:id, :type, :attributes])
+      end
 
+      it 'will return an error if no item is found' do
+        merchant_id = create(:merchant).id
+        item1 = create(:item, name: "Dog toy", merchant_id: merchant_id)
+        item2 = create(:item, name: "Dog bed", merchant_id: merchant_id)
+        item3 = create(:item, name: "Cat toy", merchant_id: merchant_id)
+
+        get "/api/v1/items/find?name=capybara"
+
+        parsed_info = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response).to be_successful
+        expect(parsed_info[:errors]).to eq("Couldn't find Item")
       end
     end
 end
