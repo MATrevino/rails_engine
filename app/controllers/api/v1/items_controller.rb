@@ -1,14 +1,8 @@
 class Api::V1::ItemsController < ApplicationController
   def index
-
     render json: ItemSerializer.new(Item.all)
   end
 
-  # def show
-  #   # item = Item.find(params[:id])
-  #   # render json: ItemSerializer.format_item_show(item)
-  #   render json: ItemSerializer.new(Item.find(params[:id]))
-  # end
   def show
     begin
      render json: ItemSerializer.new(Item.find(params[:id]))
@@ -17,11 +11,6 @@ class Api::V1::ItemsController < ApplicationController
     end
   end
 
-  # def create
-  #   item = Item.create(item_params)
-  #   # render json: ItemSerializer.format_item_create(Item.last)
-  #   render json: ItemSerializer.new(item), status: 201
-  # end
   def create
     item = Item.new(item_params)
     if item.save
