@@ -1,18 +1,41 @@
 class Api::V1::ItemsController < ApplicationController
   def index
-    items = Item.all
-    render json: ItemSerializer.format_items(items)
+    render json: ItemSerializer.new(Item.all)
   end
 
   def show
-    item = Item.find(params[:id])
-    render json: ItemSerializer.format_item_show(item)
+    begin
+     render json: ItemSerializer.new(Item.find(params[:id]))
+    rescue ActiveRecord::RecordNotFound => e
+     render json: ErrorSerializer.new(e).serialized_json, status: 404
+    end
   end
 
   def create
-    merchant = Merchant.find(item_params[:merchant_id])
-    Item.create(item_params)
-    render json: ItemSerializer.format_item_create(Item.last)
+    item = Item.new(item_params)
+    if item.save
+     render json: ItemSerializer.new(item), status: 201
+    else
+     render json: ErrorSerializer.new(item).serialized_json, status: 404
+    end
+  end
+
+  def update
+    item = Item.find(params[:id])
+    item.update(item_params)
+    
+    if item.save
+      render json: ItemSerializer.new(item)
+    else
+    #  render json: ErrorSerializer.new(item).serialized_json, status: 404
+      render json: { errors: "Invalid Update" }, status: 400
+    end
+  end
+
+  def destroy
+    item = Item.find(params[:id])
+    item.destroy
+    render json: ItemSerializer.new(item)
   end
 
   private

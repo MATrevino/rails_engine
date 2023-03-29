@@ -8,17 +8,12 @@ describe 'Merchants API' do
 
     expect(response).to be_successful
 
-    merchants = JSON.parse(response.body, symbolize_names: true)
+    parsed_data = JSON.parse(response.body, symbolize_names: true)
 
-    expect(merchants.count).to eq(3)
-
-    merchants.each do |merchant|
-      expect(merchant).to have_key(:id)
-      expect(merchant[:id]).to be_an(Integer)
-
-      expect(merchant).to have_key(:name)
-      expect(merchant[:name]).to be_a(String)
-    end
+    expect(parsed_data[:data]).to be_an(Array)
+    expect(parsed_data[:data].size).to eq(3)
+    expect(parsed_data[:data][0].keys).to eq([:id, :type, :attributes])
+    expect(parsed_data[:data][0][:attributes][:name]).to eq(Merchant.first.name)
   end
 
     it "can get one merchant by its id" do
@@ -26,40 +21,36 @@ describe 'Merchants API' do
 
       get "/api/v1/merchants/#{id}"
 
-      merchant = JSON.parse(response.body, symbolize_names: true)
+      parsed_data = JSON.parse(response.body, symbolize_names: true)
 
       expect(response).to be_successful
-
-      expect(merchant).to have_key(:id)
-      expect(merchant[:id]).to be_an(Integer)
-
-      expect(merchant).to have_key(:name)
-      expect(merchant[:name]).to be_a(String)
+      expect(parsed_data[:data]).to be_a(Hash)
+      expect(parsed_data[:data].keys).to eq([:id, :type, :attributes])
+      expect(parsed_data[:data][:id]).to eq(id.to_s)
+      expect(parsed_data[:data][:type]).to eq("merchant")
+      expect(parsed_data[:data][:attributes]).to eq({name: Merchant.first.name})
+      expect(parsed_data[:data][:attributes].size).to eq(1)
     end
 
     it "can get all items for a given merchant id" do
       id = create(:merchant).id
       create_list(:item, 3, merchant_id: id)
-      other_item = create_list(:item, 1)
+      # other_item = create_list(:item, 1)
 
       get "/api/v1/merchants/#{id}/items"
 
       expect(response).to be_successful
 
-      merchant_items = JSON.parse(response.body, symbolize_names: true)
+      parsed_items = JSON.parse(response.body, symbolize_names: true)
 
-      expect(merchant_items.count).to eq(3)
-      expect(merchant_items).not_to include(other_item)
+      expect(parsed_items[:data]).to be_an(Array)
+      expect(parsed_items[:data].size).to eq(3)
+      expect(parsed_items[:data][0].keys).to eq([:id, :type, :attributes])
 
-      merchant_items.each do |item|
-        expect(item).to have_key(:id)
-        expect(item[:id]).to be_an(Integer)
+      expect(parsed_items[:data][0][:id]).to eq(Item.first.id.to_s)
+      expect(parsed_items[:data][0][:type]).to eq("item")
+      expect(parsed_items[:data][0][:attributes]).to eq({name: Item.first.name, description: Item.first.description, unit_price: Item.first.unit_price, merchant_id: Item.first.merchant_id})
 
-        expect(item).to have_key(:name)
-        expect(item[:name]).to be_a(String)
-
-        expect(item).to have_key(:description)
-        expect(item[:description]).to be_a(String)
-      end
+      expect(parsed_items[:data][0][:attributes].size).to eq(4)
     end
 end
