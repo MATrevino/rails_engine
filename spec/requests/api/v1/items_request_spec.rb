@@ -166,19 +166,19 @@ describe "Items API" do
         end
       end
 
-      # context "find by item by min price" do
-      #   it 'can find an item by min price' do
-      #     merchant_id = create(:merchant).id
-      #     item1 = create(:item, name: "Dog toy", unit_price: 2.00, merchant_id: merchant_id)
-      #     item2 = create(:item, name: "Dog bed", unit_price: 10.50, merchant_id: merchant_id)
-      #     item3 = create(:item, name: "Cat toy", unit_price: 1.00, merchant_id: merchant_id)
+      context "find by item by min price" do
+        it 'can find an item by min price' do
+          merchant_id = create(:merchant).id
+          item1 = create(:item, name: "Dog toy", unit_price: 2.00, merchant_id: merchant_id)
+          item2 = create(:item, name: "Dog bed", unit_price: 10.50, merchant_id: merchant_id)
+          item3 = create(:item, name: "Cat toy", unit_price: 1.00, merchant_id: merchant_id)
 
-      #     get "/api/v1/items/find?min_price=2.00"
+          get "/api/v1/items/find?min_price=2.00"
 
-      #     parsed_info = JSON.parse(response.body, symbolize_names: true)
+          parsed_info = JSON.parse(response.body, symbolize_names: true)
 
-      #     expect(response).to be_successful
-      #   end
-      # end
+          expect(response).to be_successful
+        end
+      end
     end
 end

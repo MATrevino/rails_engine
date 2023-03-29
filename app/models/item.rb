@@ -12,4 +12,14 @@ class Item < ApplicationRecord
     .order(:name)
     .first
   end
+
+  def self.min_price(query)
+    where("unit_price >= ?", query)
+    .order(:unit_price)
+  end
+
+  def self.max_price(query)
+    where("unit_price <= ?", query)
+    .order(:unit_price)
+  end
 end
