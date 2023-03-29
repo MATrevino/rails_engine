@@ -4,11 +4,13 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def show
-    begin
-     render json: ItemSerializer.new(Item.find(params[:id]))
-    rescue ActiveRecord::RecordNotFound => e
-     render json: ErrorSerializer.new(e).serialized_json, status: 404
-    end
+    item = Item.find(params[:id])
+    render json: ItemSerializer.new(item)
+    # begin
+    #  render json: ItemSerializer.new(Item.find(params[:id]))
+    # rescue ActiveRecord::RecordNotFound => e
+    #  render json: ErrorSerializer.new(e).serialized_json, status: 404
+    # end
   end
 
   def create
@@ -16,7 +18,6 @@ class Api::V1::ItemsController < ApplicationController
     if item.save
      render json: ItemSerializer.new(item), status: 201
     else
-    #  render json: ErrorSerializer.new(item).serialized_json, status: 404
       render json: { errors: "Invalid Update" }, status: 404
     end
   end
@@ -38,15 +39,6 @@ class Api::V1::ItemsController < ApplicationController
     item.destroy
     render json: ItemSerializer.new(item)
     #get ride of the ItemSerializer, not needed
-  end
-
-  def search
-    @item = Item.find_by(name: params[:name])
-    if @item
-      render json: @item
-    else
-      render json: { error: "Couldn't find Item" }, status: :not_found
-    end
   end
 
   private

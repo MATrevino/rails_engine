@@ -161,8 +161,8 @@ describe "Items API" do
 
           parsed_info = JSON.parse(response.body, symbolize_names: true)
 
-          expect(response).to be_successful
-          expect(parsed_info[:errors]).to eq("Couldn't find Item")
+          expect(response.status).to eq(404)
+          expect(parsed_info[:data]).to eq("Couldn't find Item")
         end
       end
 
@@ -176,7 +176,7 @@ describe "Items API" do
           get "/api/v1/items/find?min_price=2.00"
 
           parsed_info = JSON.parse(response.body, symbolize_names: true)
-          # binding.pry
+
           expect(response).to be_successful
           expect(parsed_info[:data]).to be_a(Array)
           expect(parsed_info[:data].size).to eq(2)
@@ -193,8 +193,21 @@ describe "Items API" do
 
           parsed_info = JSON.parse(response.body, symbolize_names: true)
           
-          expect(response).to be_successful
-          expect(parsed_info[:errors]).to eq("Couldn't find Item")
+          expect(response.status).to eq(404)
+          expect(parsed_info[:data]).to eq("Couldn't find Item")
+        end
+
+        it 'will return an error if min price is less than 0' do
+          merchant_id = create(:merchant).id
+          item1 = create(:item, name: "Dog toy", unit_price: 3.00, merchant_id: merchant_id)
+          item2 = create(:item, name: "Dog bed", unit_price: 10.50, merchant_id: merchant_id)
+          item3 = create(:item, name: "Cat toy", unit_price: 1.00, merchant_id: merchant_id)
+
+          get "/api/v1/items/find?min_price=-2.00"
+
+          parsed_info = JSON.parse(response.body, symbolize_names: true)
+          expect(response.status).to eq(404)
+          expect(parsed_info[:data]).to eq("price cannot be negative")
         end
       end 
       
@@ -224,8 +237,67 @@ describe "Items API" do
 
           parsed_info = JSON.parse(response.body, symbolize_names: true)
           
+          expect(response.status).to eq(404)
+          expect(parsed_info[:data]).to eq("Couldn't find Item")
+        end
+
+        it 'will return an error max price is less than 0' do
+          merchant_id = create(:merchant).id
+          item1 = create(:item, name: "Dog toy", unit_price: 3.00, merchant_id: merchant_id)
+          item2 = create(:item, name: "Dog bed", unit_price: 10.50, merchant_id: merchant_id)
+
+          get "/api/v1/items/find?max_price=-1.00"
+
+          parsed_info = JSON.parse(response.body, symbolize_names: true)
+          
+          expect(response.status).to eq(404)
+          expect(parsed_info[:data]).to eq("price cannot be negative")
+        end
+      end
+
+      context "find by item by min and max price" do
+        it 'can find an item by min and max price' do
+          merchant_id = create(:merchant).id
+          item1 = create(:item, name: "Dog toy", unit_price: 3.00, merchant_id: merchant_id)
+          item2 = create(:item, name: "Dog bed", unit_price: 10.50, merchant_id: merchant_id)
+          item3 = create(:item, name: "Cat toy", unit_price: 1.00, merchant_id: merchant_id)
+
+          get "/api/v1/items/find?min_price=2.00&max_price=5.00"
+
+          parsed_info = JSON.parse(response.body, symbolize_names: true)
           expect(response).to be_successful
-          expect(parsed_info[:errors]).to eq("Couldn't find Item")
+          expect(parsed_info[:data]).to be_a(Array)
+          expect(parsed_info[:data].size).to eq(1)
+          expect(parsed_info[:data][0].keys).to eq([:id, :type, :attributes])
+        end
+        
+        # it 'will return an error if no item is found for min and max price' do
+        #   merchant_id = create(:merchant).id
+        #   item1 = create(:item, name: "Dog toy", unit_price: 3.00, merchant_id: merchant_id)
+        #   item2 = create(:item, name: "Dog bed", unit_price: 10.50, merchant_id: merchant_id)
+        #   item3 = create(:item, name: "Cat toy", unit_price: 1.00, merchant_id: merchant_id)
+          
+        #   get "/api/v1/items/find?min_price=20.00&max_price=1.00"
+          
+        #   parsed_info = JSON.parse(response.body, symbolize_names: true)
+        #   expect(response).to be_successful
+
+        # end
+      end
+
+      context "cannot send name and price query params" do
+        it 'will return an error if name and price query params are sent' do
+          merchant_id = create(:merchant).id
+          item1 = create(:item, name: "Dog toy", unit_price: 3.00, merchant_id: merchant_id)
+          item2 = create(:item, name: "Dog bed", unit_price: 10.50, merchant_id: merchant_id)
+          item3 = create(:item, name: "Cat toy", unit_price: 1.00, merchant_id: merchant_id)
+
+          get "/api/v1/items/find?min_price=2.00&name=dog"
+
+          parsed_info = JSON.parse(response.body, symbolize_names: true)
+
+          expect(response.status).to eq(400)
+          expect(parsed_info[:data]).to eq("Can't search for name and price")
         end
       end
     end 
