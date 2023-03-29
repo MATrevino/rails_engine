@@ -271,18 +271,18 @@ describe "Items API" do
           expect(parsed_info[:data][0].keys).to eq([:id, :type, :attributes])
         end
         
-        # it 'will return an error if no item is found for min and max price' do
-        #   merchant_id = create(:merchant).id
-        #   item1 = create(:item, name: "Dog toy", unit_price: 3.00, merchant_id: merchant_id)
-        #   item2 = create(:item, name: "Dog bed", unit_price: 10.50, merchant_id: merchant_id)
-        #   item3 = create(:item, name: "Cat toy", unit_price: 1.00, merchant_id: merchant_id)
+        it 'will return an error if no item is found for min and max price' do
+          merchant_id = create(:merchant).id
+          item1 = create(:item, name: "Dog toy", unit_price: 3.00, merchant_id: merchant_id)
+          item2 = create(:item, name: "Dog bed", unit_price: 10.50, merchant_id: merchant_id)
+          item3 = create(:item, name: "Cat toy", unit_price: 1.00, merchant_id: merchant_id)
           
-        #   get "/api/v1/items/find?min_price=20.00&max_price=1.00"
+          get "/api/v1/items/find?min_price=20.00&max_price=1.00"
           
-        #   parsed_info = JSON.parse(response.body, symbolize_names: true)
-        #   expect(response).to be_successful
+          parsed_info = JSON.parse(response.body, symbolize_names: true)
+          expect(response).to be_successful
 
-        # end
+        end
       end
 
       context "cannot send name and price query params" do
