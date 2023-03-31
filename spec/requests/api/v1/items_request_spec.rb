@@ -145,6 +145,7 @@ describe "Items API" do
 
           parsed_info = JSON.parse(response.body, symbolize_names: true)
           
+          expect(response.status).to eq(200)
           expect(response).to be_successful
           expect(parsed_info[:data]).to be_a(Hash)
           expect(parsed_info.size).to eq(1)
@@ -162,12 +163,13 @@ describe "Items API" do
           parsed_info = JSON.parse(response.body, symbolize_names: true)
 
           expect(response.status).to eq(404)
-          expect(parsed_info[:data]).to eq("Couldn't find Item")
         end
       end
 
       context "find by item by min price" do
         it 'can find an item by min price' do
+          #postman test
+
           merchant_id = create(:merchant).id
           item1 = create(:item, name: "Dog toy", unit_price: 3.00, merchant_id: merchant_id)
           item2 = create(:item, name: "Dog bed", unit_price: 10.50, merchant_id: merchant_id)
@@ -193,8 +195,7 @@ describe "Items API" do
 
           parsed_info = JSON.parse(response.body, symbolize_names: true)
           
-          expect(response.status).to eq(404)
-          expect(parsed_info[:data]).to eq("Couldn't find Item")
+          expect(response.status).to eq(400)
         end
 
         it 'will return an error if min price is less than 0' do
@@ -206,13 +207,14 @@ describe "Items API" do
           get "/api/v1/items/find?min_price=-2.00"
 
           parsed_info = JSON.parse(response.body, symbolize_names: true)
-          expect(response.status).to eq(404)
-          expect(parsed_info[:data]).to eq("price cannot be negative")
+          expect(response.status).to eq(400)
+          expect(parsed_info[:errors]).to eq("price cannot be negative")
         end
       end 
       
       context "find by item by max price" do
         it 'can find an item by max price' do
+          #postman test
           merchant_id = create(:merchant).id
           item1 = create(:item, name: "Dog toy", unit_price: 3.00, merchant_id: merchant_id)
           item2 = create(:item, name: "Dog bed", unit_price: 10.50, merchant_id: merchant_id)
@@ -237,8 +239,7 @@ describe "Items API" do
 
           parsed_info = JSON.parse(response.body, symbolize_names: true)
           
-          expect(response.status).to eq(404)
-          expect(parsed_info[:data]).to eq("Couldn't find Item")
+          expect(response.status).to eq(400)
         end
 
         it 'will return an error max price is less than 0' do
@@ -250,8 +251,8 @@ describe "Items API" do
 
           parsed_info = JSON.parse(response.body, symbolize_names: true)
           
-          expect(response.status).to eq(404)
-          expect(parsed_info[:data]).to eq("price cannot be negative")
+          expect(response.status).to eq(400)
+          expect(parsed_info[:errors]).to eq("price cannot be negative")
         end
       end
 

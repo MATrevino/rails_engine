@@ -8,11 +8,12 @@ class Api::V1::Item::SearchController < ApplicationController
     else params[:min_price] || params[:max_price] || (params[:min_price] && params[:max_price])
       price_search
     end
+
   end
 
   def name_search
     if Item.search_by_name(params[:name]).nil?
-      render json: { data: "Couldn't find Item" }, status: 404
+      render json: { errors: "Couldn't find Item", data: {}}, status: 404
     else
       render json: ItemSerializer.new(Item.search_by_name(params[:name]))
     end
@@ -20,9 +21,9 @@ class Api::V1::Item::SearchController < ApplicationController
 
   def price_search
     if (params[:min_price].to_f < 0) || (params[:max_price].to_f < 0)
-      render json: { data: "price cannot be negative" }, status: 404
+      render json: { errors: "price cannot be negative" }, status: 400
     elsif Item.min_price(params[:min_price]).empty? && Item.max_price(params[:max_price]).empty?
-      render json: { data: "Couldn't find Item" }, status: 404
+      render json: { data: {}}, status: 400
     elsif Item.min_price(params[:min_price]).empty?
       render json: ItemSerializer.new(Item.max_price(params[:max_price]))
     elsif Item.max_price(params[:max_price]).empty?
