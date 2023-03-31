@@ -77,7 +77,7 @@ describe 'Merchants API' do
 
         parsed_info = JSON.parse(response.body, symbolize_names: true)
 
-        expect(response).to be_successful
+        expect(response.status).to eq(404)
         expect(parsed_info[:errors]).to eq("Couldn't find Merchant")
       end
     end
